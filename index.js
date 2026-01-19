@@ -28,7 +28,7 @@ const websetsScript = path.join(__dirname, 'node_modules', 'exa-websets-mcp-serv
 const websetsMcp = spawn(mcpProxyBin, [
     '--port', WEBSETS_PORT,
     '--sseEndpoint', '/websets/sse',
-    '--streamEndpoint', '/websets/mcp',
+    '--streamEndpoint', '/messages', // mcp-proxy insists on announcing /messages, so we must listen on it
     '--',
     'node',
     websetsScript
@@ -38,10 +38,10 @@ const websetsMcp = spawn(mcpProxyBin, [
 });
 
 websetsMcp.stdout.on('data', (data) => {
-    console.log(`[Websets:3002] ${data.toString().trim()}`);
+    console.log(`[Websets:13002] ${data.toString().trim()}`);
 });
 websetsMcp.stderr.on('data', (data) => {
-    console.error(`[Websets:3002] ${data.toString().trim()}`);
+    console.error(`[Websets:13002] ${data.toString().trim()}`);
 });
 
 console.log(`[Gateway] Started Websets MCP on port ${WEBSETS_PORT}`);
@@ -61,6 +61,10 @@ app.use('/mcp', createProxyMiddleware({
 app.use('/messages', createProxyMiddleware({
     target: `http://localhost:${WEBSETS_PORT}`,
     changeOrigin: true,
+    ws: true,
+    pathRewrite: {
+        '^/': '/messages' // app.use strips prefix, add it back so mcp-proxy receives /messages
+    }
 }));
 
 // 2. Websets MCP Routes
