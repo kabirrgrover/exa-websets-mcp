@@ -1,105 +1,76 @@
-# Exa MCP Server Deployment
+# Exa Websets MCP Server
 
-This repository contains the configuration to deploy the [Exa MCP Server](https://github.com/exa-labs/exa-mcp-server) to Render or any other cloud provider.
+## What This Does
+This MCP server acts as a unified gateway that lets you query both Exa (for code search) and Websets (for deep research) through Poke AI assistant or any MCP client.
 
-## Local Usage
+- "Find me a Python library for..." - Uses Exa Code Search
+- "Research the top 5 competitors for..." - Uses Websets for deep research
+- "Create a list of leads..." - Uses Websets to build persistent lists
 
-You can run the server locally in stdio mode (for Claude Desktop) via `npx`:
+## Features
+- Unified Gateway: Access both tools through a single Render deployment
+- Code Search: specialized Exa model for coding questions
+- Websets: Deep research and list management
+- Cloud Ready: Deploy to Render with one click
+- Poke Compatible: Works out of the box with Poke AI
 
-```bash
-export EXA_API_KEY=your_key
-npx exa-mcp-server
-```
+## Quick Start
+### Prerequisites
+- Exa API Key
+- Poke account (for AI assistant integration)
+- Render account (free tier works)
 
-Or run the HTTP server locally:
+### Option 1: Deploy to Render (Recommended)
+1. Fork this repository.
+2. Create a new Web Service on Render.
+3. Connect your forked repository.
+4. Set environment variables:
+   - `EXA_API_KEY`: Your Exa API key
+   - `PORT`: 8080 (optional, Render sets this automatically)
+5. Get your MCP URL: `https://your-service-name.onrender.com`
 
-```bash
-export EXA_API_KEY=your_key
-npm start
-```
+### Option 2: Run Locally
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/kabirrgrover/exa-websets-mcp-poke.git
+   cd exa-websets-mcp-poke
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Configure environment:
+   Set `EXA_API_KEY` in your environment.
+4. Run the server:
+   ```bash
+   npm start
+   ```
+   Server runs at: `http://localhost:8080`
 
-## Deployment to Render
+## Poke Configuration
+To connect this server to Poke, you need to add two separate integrations if you want both capabilities.
 
-You have two options for deployment: **Node (recommended)** or **Docker**.
+### 1. Websets (Research)
+- **URL**: `https://your-service-name.onrender.com/websets/sse`
+- **Use for**: Research, Lead Gen, Lists
 
-### Option 1: Node (Simpler)
-1.  Create a new **Web Service** on Render.
-2.  Connect this repository.
-3.  Select **Node** as the Runtime.
-4.  Render will automatically try to run `npm start`, which is already configured.
-5.  Add the Environment Variable:
-    *   `EXA_API_KEY`: Your Exa API key.
-6.  Deploy.
+### 2. Exa (Coding)
+- **URL**: `https://your-service-name.onrender.com/mcp`
+- **Use for**: Coding questions, Documentation search
 
-### Option 2: Docker
-1.  Create a new **Web Service** on Render.
-2.  Connect this repository.
-3.  Select **Docker** as the Runtime.
-4.  Add the Environment Variable:
-    *   `EXA_API_KEY`: Your Exa API key.
-5.  Deploy.
+## Troubleshooting
+**"Invalid MCP server URL"**
+- Verify your URL matches the endpoints above exactly.
+- Ensure the server is live on Render (green status).
 
-## Client Configuration
+**"Authentication failed"**
+- Verify `EXA_API_KEY` is set correctly in Render environment variables.
 
-Once deployed, configure your MCP client (Claude Desktop, Cursor, etc.) to point to your new server URL.
+**Messages failing**
+- If Poke cannot send messages, ensure you are using the correct endpoint (`/websets/sse` for Websets).
 
-## Client Configuration
+## Architecture
+Poke AI <-> Gateway (Express) <-> [Exa MCP, Websets MCP]
 
-This server exposes two distinct MCP endpoints on the same generic Render URL.
-
-### 1. Exa MCP (Code Search)
-Use this for **coding questions**.
-
-**Claude Desktop:**
-```json
-{
-  "mcpServers": {
-    "exa-code": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://your-render-app-name.onrender.com/mcp"
-      ]
-    }
-  }
-}
-```
-
-**Cursor/HTTP:**
-*   URL: `https://your-render-app-name.onrender.com/mcp`
-
-### 2. Websets MCP (Research & Lists)
-Use this for **market research, lead gen, and persistent lists**.
-
-**Claude Desktop:**
-```json
-{
-  "mcpServers": {
-    "exa-websets": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://your-render-app-name.onrender.com/websets/sse"
-      ]
-    }
-  }
-}
-```
-
-**Cursor/HTTP:**
-*   URL: `https://your-render-app-name.onrender.com/websets/sse`
-*   Note: Cursor might require you to explicitly set the transport type. If asked, ensure you use SSE.
-
-## Environment Variables
-
-*   `EXA_API_KEY`: Required. Your Exa API key (shared by both services).
-
-
-**Note:** The `/mcp` path suffix is common for MCP servers over SSE. If the root URL doesn't work, try adding `/sse` or just the root depending on the server implementation. The standard Exa server typically uses `/mcp`.
-
-## Environment Variables
-
-*   `EXA_API_KEY`: Required. Your Exa API key.
-*   `PORT`: Optional. The port to listen on (default: 8080).
+## License
+MIT License
