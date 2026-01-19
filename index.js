@@ -56,6 +56,13 @@ app.use('/mcp', createProxyMiddleware({
     ws: true, // Proxy websockets if any
 }));
 
+// Route /messages to Websets because mcp-proxy announces this as the endpoint
+// regardless of the streamEndpoint setting (apparently).
+app.use('/messages', createProxyMiddleware({
+    target: `http://localhost:${WEBSETS_PORT}`,
+    changeOrigin: true,
+}));
+
 // 2. Websets MCP Routes
 // We mount everything under /websets/
 // Proxy forwards the full path (e.g. /websets/sse) to mcp-proxy, which is now looking for that exact path.
