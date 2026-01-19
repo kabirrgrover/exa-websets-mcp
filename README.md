@@ -45,8 +45,8 @@ What this MCP server allows you to do:
 ### Option 2: Run Locally
 1. Clone the repository:
    ```bash
-   git clone https://github.com/kabirrgrover/exa-websets-mcp-poke.git
-   cd exa-websets-mcp-poke
+   git clone https://github.com/kabirrgrover/exa-websets-mcp.git
+   cd exa-websets-mcp
    ```
 2. Install dependencies:
    ```bash
