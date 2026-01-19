@@ -43,14 +43,18 @@ You have two options for deployment: **Node (recommended)** or **Docker**.
 
 Once deployed, configure your MCP client (Claude Desktop, Cursor, etc.) to point to your new server URL.
 
-**Claude Desktop Configuration (`claude_desktop_config.json`):**
+## Client Configuration
 
-Since Claude Desktop primarily supports stdio, use `mcp-remote` to bridge to your remote server:
+This server exposes two distinct MCP endpoints on the same generic Render URL.
 
+### 1. Exa MCP (Code Search)
+Use this for **coding questions**.
+
+**Claude Desktop:**
 ```json
 {
   "mcpServers": {
-    "exa-custom": {
+    "exa-code": {
       "command": "npx",
       "args": [
         "-y",
@@ -62,21 +66,36 @@ Since Claude Desktop primarily supports stdio, use `mcp-remote` to bridge to you
 }
 ```
 
-**Cursor & Claude Code Configuration:**
+**Cursor/HTTP:**
+*   URL: `https://your-render-app-name.onrender.com/mcp`
 
-Cursor and Claude Code support HTTP directly:
+### 2. Websets MCP (Research & Lists)
+Use this for **market research, lead gen, and persistent lists**.
 
+**Claude Desktop:**
 ```json
 {
   "mcpServers": {
-    "exa-custom": {
-      "type": "http",
-      "url": "https://your-render-app-name.onrender.com/mcp",
-      "headers": {}
+    "exa-websets": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://your-render-app-name.onrender.com/websets/sse"
+      ]
     }
   }
 }
 ```
+
+**Cursor/HTTP:**
+*   URL: `https://your-render-app-name.onrender.com/websets/sse`
+*   Note: Cursor might require you to explicitly set the transport type. If asked, ensure you use SSE.
+
+## Environment Variables
+
+*   `EXA_API_KEY`: Required. Your Exa API key (shared by both services).
+
 
 **Note:** The `/mcp` path suffix is common for MCP servers over SSE. If the root URL doesn't work, try adding `/sse` or just the root depending on the server implementation. The standard Exa server typically uses `/mcp`.
 
