@@ -6,9 +6,9 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Internal ports for sub-services
-const EXA_PORT = 3001;
-const WEBSETS_PORT = 3002;
+// Internal ports for sub-services (using high ports to avoid conflicts)
+const EXA_PORT = 13001;
+const WEBSETS_PORT = 13002;
 
 // --- Start Exa MCP Server (Existing) ---
 // Runs on PORT 3001
