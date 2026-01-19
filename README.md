@@ -1,5 +1,5 @@
 ## What This Does
-This MCP server acts as a unified gateway that lets you query both Exa (for code search) and Websets (for deep research) through **any MCP client**—including Poke AI, Claude Desktop, Cursor, and Windsurf.
+This MCP server acts as a unified gateway that lets you query both Exa (for code search) and Websets (for deep research) through **any MCP client - including Poke AI, Claude Desktop, Cursor, and Windsurf.
 
 It enables you to:
 - **Search across custom collections** of websites simultaneously (vs. searching one site at a time)
