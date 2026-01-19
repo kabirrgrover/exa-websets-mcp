@@ -62,7 +62,10 @@ app.use('/mcp', createProxyMiddleware({
 app.use('/websets', createProxyMiddleware({
     target: `http://localhost:${WEBSETS_PORT}`,
     changeOrigin: true,
-    ws: true
+    ws: true,
+    pathRewrite: {
+        '^/': '/websets/' // app.use strips the prefix, so we add it back because mcp-proxy expects full path
+    }
 }));
 
 // Health check
