@@ -1,7 +1,7 @@
-# Exa Websets MCP Server
-
 ## What This Does
-This MCP server acts as a unified gateway that lets you query both Exa (for code search) and Websets (for deep research) through Poke AI assistant or any MCP client. It enables you to:
+This MCP server acts as a unified gateway that lets you query both Exa (for code search) and Websets (for deep research) through **any MCP client**—including Poke AI, Claude Desktop, Cursor, and Windsurf.
+
+It enables you to:
 - **Search across custom collections** of websites simultaneously (vs. searching one site at a time)
 - **Find real-time information** beyond training data (current news, market updates, new companies)
 - **Access specialized databases** like Crunchbase, Pitchbook, and LinkedIn for verified business information
@@ -11,11 +11,11 @@ This MCP server acts as a unified gateway that lets you query both Exa (for code
 - **Conduct competitive analysis** by gathering data across company websites, news sources, and business directories
 
 ## Features
-- Unified Gateway: Access both tools through a single Render deployment
-- Code Search: specialized Exa model for coding questions
-- Websets: Deep research and list management
-- Cloud Ready: Deploy to Render with one click
-- Poke Compatible: Works out of the box with Poke AI
+- **Unified Gateway**: Access both tools through a single Render deployment
+- **Code Search**: specialized Exa model for coding questions
+- **Websets**: Deep research and list management
+- **Cloud Ready**: Deploy to Render with one click
+- **Universal Compatibility**: Works with Poke, Claude Desktop, Cursor, and any standard MCP client. (**Poke is NOT required!**)
 
 ## Capabilities Reference
 What this MCP server allows you to do:
@@ -30,7 +30,7 @@ What this MCP server allows you to do:
 ## Quick Start
 ### Prerequisites
 - Exa API Key
-- Poke account (for AI assistant integration)
+- An MCP Client (Poke, Claude Desktop, Cursor, etc.)
 - Render account (free tier works)
 
 ### Option 1: Deploy to Render (Recommended)
@@ -60,8 +60,8 @@ What this MCP server allows you to do:
    ```
    Server runs at: `http://localhost:8080`
 
-## Poke Configuration
-To connect this server to Poke, you need to add two separate integrations if you want both capabilities.
+## Client Configuration (Poke, Claude, Cursor)
+To connect this server, use the URLs below. You don't need Poke—you can use these with **any** MCP-compliant tool.
 
 ### 1. Websets (Research)
 - **URL**: `https://your-service-name.onrender.com/websets/sse`
@@ -70,6 +70,22 @@ To connect this server to Poke, you need to add two separate integrations if you
 ### 2. Exa (Coding)
 - **URL**: `https://your-service-name.onrender.com/mcp`
 - **Use for**: Coding questions, Documentation search
+
+#### Example: Claude Desktop Config
+```json
+{
+  "mcpServers": {
+    "exa-research": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://your-app.onrender.com/websets/sse"]
+    },
+    "exa-code": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://your-app.onrender.com/mcp"]
+    }
+  }
+}
+```
 
 ## Troubleshooting
 **"Invalid MCP server URL"**
