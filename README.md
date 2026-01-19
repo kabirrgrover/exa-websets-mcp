@@ -1,11 +1,14 @@
 # Exa Websets MCP Server
 
 ## What This Does
-This MCP server acts as a unified gateway that lets you query both Exa (for code search) and Websets (for deep research) through Poke AI assistant or any MCP client.
-
-- "Find me a Python library for..." - Uses Exa Code Search
-- "Research the top 5 competitors for..." - Uses Websets for deep research
-- "Create a list of leads..." - Uses Websets to build persistent lists
+This MCP server acts as a unified gateway that lets you query both Exa (for code search) and Websets (for deep research) through Poke AI assistant or any MCP client. It enables you to:
+- **Search across custom collections** of websites simultaneously (vs. searching one site at a time)
+- **Find real-time information** beyond training data (current news, market updates, new companies)
+- **Access specialized databases** like Crunchbase, Pitchbook, and LinkedIn for verified business information
+- **Monitor specific industries** or trends by searching relevant publications together
+- **Verify contact information** across multiple sources for accuracy
+- **Compile comprehensive research reports** by pulling from diverse authoritative sources
+- **Conduct competitive analysis** by gathering data across company websites, news sources, and business directories
 
 ## Features
 - Unified Gateway: Access both tools through a single Render deployment
