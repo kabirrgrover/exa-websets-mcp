@@ -1,9 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { z } from "zod";
 import axios from "axios";
+import http from "node:http";
 
 const EXA_API_URL = "https://api.exa.ai/search";
+const PORT = process.env.DEEP_PORT || 13003;
 
 const server = new McpServer({
   name: "exa-deep-search",
@@ -116,6 +118,55 @@ server.tool(
   }
 );
 
-const transport = new StdioServerTransport();
-await server.connect(transport);
-console.error("[exa-deep-server] MCP server running on stdio");
+// Track active transports by session ID
+const transports = new Map();
+
+const httpServer = http.createServer(async (req, res) => {
+  // CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+
+  // SSE endpoint
+  if (req.method === "GET" && url.pathname === "/deep/sse") {
+    const transport = new SSEServerTransport("/deep/messages", res);
+    transports.set(transport.sessionId, transport);
+    transport.onclose = () => transports.delete(transport.sessionId);
+    await server.connect(transport);
+    return;
+  }
+
+  // Message endpoint
+  if (req.method === "POST" && url.pathname === "/deep/messages") {
+    const sessionId = url.searchParams.get("sessionId");
+    const transport = transports.get(sessionId);
+    if (!transport) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Invalid or expired session" }));
+      return;
+    }
+
+    // Parse body
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const body = JSON.parse(Buffer.concat(chunks).toString());
+    await transport.handlePostMessage(req, res, body);
+    return;
+  }
+
+  res.writeHead(404);
+  res.end("Not found");
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`[exa-deep-server] Listening on port ${PORT}`);
+  console.log(`[exa-deep-server] SSE: /deep/sse | Messages: /deep/messages`);
+});

@@ -48,18 +48,11 @@ websetsMcp.stderr.on('data', (data) => {
 console.log(`[Gateway] Started Websets MCP on port ${WEBSETS_PORT}`);
 
 // --- Start Deep Search MCP Server ---
-// Runs on PORT 13003 via mcp-proxy
+// Runs on PORT 13003 directly (handles its own HTTP/SSE)
 const deepScript = path.join(__dirname, 'exa-deep-server.mjs');
 
-const deepMcp = spawn(mcpProxyBin, [
-    '--port', DEEP_PORT,
-    '--sseEndpoint', '/deep/sse',
-    '--streamEndpoint', '/deep/messages',
-    '--',
-    'node',
-    deepScript
-], {
-    env: { ...process.env },
+const deepMcp = spawn('node', [deepScript], {
+    env: { ...process.env, DEEP_PORT },
     stdio: 'pipe'
 });
 
