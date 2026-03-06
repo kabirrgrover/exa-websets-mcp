@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 8080;
 // Internal ports for sub-services (using high ports to avoid conflicts)
 const EXA_PORT = 13001;
 const WEBSETS_PORT = 13002;
+const DEEP_PORT = 13003;
 
 // --- Start Exa MCP Server (Existing) ---
 // Runs on PORT 3001
@@ -46,6 +47,31 @@ websetsMcp.stderr.on('data', (data) => {
 
 console.log(`[Gateway] Started Websets MCP on port ${WEBSETS_PORT}`);
 
+// --- Start Deep Search MCP Server ---
+// Runs on PORT 13003 via mcp-proxy
+const deepScript = path.join(__dirname, 'exa-deep-server.mjs');
+
+const deepMcp = spawn(mcpProxyBin, [
+    '--port', DEEP_PORT,
+    '--sseEndpoint', '/deep/sse',
+    '--streamEndpoint', '/deep/messages',
+    '--',
+    'node',
+    deepScript
+], {
+    env: { ...process.env },
+    stdio: 'pipe'
+});
+
+deepMcp.stdout.on('data', (data) => {
+    console.log(`[Deep:13003] ${data.toString().trim()}`);
+});
+deepMcp.stderr.on('data', (data) => {
+    console.error(`[Deep:13003] ${data.toString().trim()}`);
+});
+
+console.log(`[Gateway] Started Deep Search MCP on port ${DEEP_PORT}`);
+
 // --- Proxy Routes ---
 
 // 1. Exa MCP Routes
@@ -79,20 +105,41 @@ app.use('/websets', createProxyMiddleware({
     }
 }));
 
+// 3. Deep Search MCP Routes
+app.use('/deep/messages', createProxyMiddleware({
+    target: `http://localhost:${DEEP_PORT}`,
+    changeOrigin: true,
+    ws: true,
+    pathRewrite: {
+        '^/': '/deep/messages'
+    }
+}));
+
+app.use('/deep', createProxyMiddleware({
+    target: `http://localhost:${DEEP_PORT}`,
+    changeOrigin: true,
+    ws: true,
+    pathRewrite: {
+        '^/': '/deep/'
+    }
+}));
+
 // Health check
 app.get('/', (req, res) => {
-    res.send('Exa + Websets MCP Gateway is running.');
+    res.send('Exa + Websets + Deep Search MCP Gateway is running.');
 });
 
 app.listen(PORT, () => {
     console.log(`[Gateway] Main server server listening on port ${PORT}`);
     console.log(`[Gateway] Exa MCP available at: /mcp`);
     console.log(`[Gateway] Websets MCP available at: /websets/sse (SSE) and /websets/mcp (POST)`);
+    console.log(`[Gateway] Deep Search MCP available at: /deep/sse (SSE) and /deep/messages (POST)`);
 });
 
 // Cleanup on exit
 process.on('SIGTERM', () => {
     exaMcp.kill();
     websetsMcp.kill();
+    deepMcp.kill();
     process.exit();
 });
