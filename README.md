@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/kabirrgrover-exa-websets-mcp-badge.png)](https://mseep.ai/app/kabirrgrover-exa-websets-mcp)
+
 ## What This Does
 This MCP server acts as a unified gateway that lets you query Exa (for code search), Websets (for deep research), and Deep Search (for structured, citation-backed answers) through **any MCP client — including Poke AI, Cursor, and Windsurf.
 
